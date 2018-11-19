@@ -320,7 +320,19 @@ void set_sound_volume(double volume);
 void set_bgm_volume(double volume);
 
 /**
+* Commandライブラリを初期化する.
+*/
+void initialize();
+
+/**
+* Commandライブラリを終了する.
+*/
+void finalize();
+
+/**
 * 画像制御番号.
+*
+* @note このクラスを直接使わずにno0～no19マクロを使うこと.
 */
 class ImageNo
 {

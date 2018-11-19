@@ -1,6 +1,7 @@
 /**
 * @file Command.cpp
 */
+#include <objbase.h>
 #include "Command.h"
 #include "GLFWEW.h"
 #include "Sprite.h"
@@ -174,6 +175,10 @@ struct color_filter : Sprite
   }
 };
 
+/*
+* Commandライブラリ変数.
+*/
+
 Sprite rootNode; // 描画等の大本になるスプライト.
 std::vector<actable_sprite> spriteBuffer; // 実際に描画されるスプライトたち.
 SpriteRenderer spriteRenderer; // スプライト描画用変数.
@@ -296,6 +301,16 @@ void main_loop(T func)
 */
 void initialize()
 {
+  CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+  GLFWEW::Window& window = GLFWEW::Window::Instance();
+  if (!window.Init(800, 600, "OpenGL 2D")) {
+    exit(1);
+  }
+
+  if (!Audio::Engine::Get().Initialize()) {
+    std::cerr << "Audio Engineの初期化に失敗." << std::endl;
+  }
+
   setlocale(LC_CTYPE, "JPN");
   Texture::Initialize();
   textureCache.reserve(1024);
@@ -318,7 +333,6 @@ void initialize()
   colorFilter.Color(glm::vec4(0, 0, 0, 0));
   colorFilter.action.init(0, 0, linear, 0);
 
-  const GLFWEW::Window& window = GLFWEW::Window::Instance();
   fontRenderer.Init(1024, glm::vec2(window.Width(), window.Height()));
   fontRenderer.LoadFromFile("Res/Font/font.fnt");
 
@@ -335,6 +349,11 @@ void finalize()
   spriteBuffer.clear();
   textureCache.clear();
   Texture::Finalize();
+
+  Audio::Engine::Get().Destroy();
+
+  CoUninitialize();
+  std::cout << "Finish." << std::endl;
 }
 
 void set_text(double x, double y, const char* format, ...)
