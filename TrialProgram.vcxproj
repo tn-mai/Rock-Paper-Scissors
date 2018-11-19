@@ -86,13 +86,6 @@ if not exist "$(TargetDir)glew32.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(C
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Command.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
-      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IntrinsicFunctions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
-    </ClCompile>
     <ClCompile Include="Lib\Easy\Audio.cpp">
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
@@ -123,11 +116,10 @@ if not exist "$(TargetDir)glew32.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(C
     <ClCompile Include="Lib\Easy\TweenAnimation.cpp">
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
+    <ClCompile Include="Src\Command.cpp" />
     <ClCompile Include="Src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Command.h" />
     <ClInclude Include="Lib\Easy\Audio.h" />
     <ClInclude Include="Lib\Easy\BufferObject.h" />
     <ClInclude Include="Lib\Easy\DXGIFormat.h" />
@@ -140,6 +132,7 @@ if not exist "$(TargetDir)glew32.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(C
     <ClInclude Include="Lib\Easy\Sprite.h" />
     <ClInclude Include="Lib\Easy\Texture.h" />
     <ClInclude Include="Lib\Easy\TweenAnimation.h" />
+    <ClInclude Include="Src\Command.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
