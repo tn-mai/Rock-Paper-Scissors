@@ -40,6 +40,8 @@ const ImageNo image_no17(17);
 const ImageNo image_no18(18);
 const ImageNo image_no19(19);
 
+int text_y_offset = 0; // 自動改行テキストの表示Y座標.
+
 namespace /* unnamed */ {
 
 /**
@@ -356,10 +358,8 @@ void finalize()
   std::cout << "Finish." << std::endl;
 }
 
-void set_text(double x, double y, const char* format, ...)
+void set_text(double x, double y, const char* format, va_list ap)
 {
-  va_list ap;
-  va_start(ap, format);
   char tmp[1024];
   vsnprintf(tmp, sizeof(tmp), format, ap);
   va_end(ap);
@@ -368,9 +368,25 @@ void set_text(double x, double y, const char* format, ...)
   textList.push_back({ screen_coord_to_clip_coord(opengl_pos), sjis_to_utf16(tmp) });
 }
 
+void set_text(double x, double y, const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  set_text(x, y, format, ap);
+}
+
+void set_text(const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  set_text(0, text_y_offset, format, ap);
+  text_y_offset += 40;
+}
+
 void reset_all_text()
 {
   textList.clear();
+  text_y_offset = 0;
 }
 
 void reset_text_area(double x, double y, double width, double height)
@@ -516,7 +532,7 @@ void wait_any_key()
     fontRenderer.UnmapBuffer();
 
     const GamePad gamepad = window.GetGamePad();
-    return gamepad.buttons || (window.NumOfKeyPressed() > 0);
+    return gamepad.buttonDown || window.KeyChanged();
   });
 }
 
@@ -558,12 +574,10 @@ int wait_game_key(bool trigger)
   return result;
 }
 
-int select(double x, double y, int count, const char* a, const char* b, ...)
+int select(double x, double y, int count, const char* a, const char* b, va_list ap)
 {
   std::vector<std::wstring> selectionList;
 
-  va_list ap;
-  va_start(ap, b);
   selectionList.push_back(sjis_to_utf16(a));
   selectionList.push_back(sjis_to_utf16(b));
   for (int i = 2; i < count; ++i) {
@@ -616,22 +630,38 @@ int select(double x, double y, int count, const char* a, const char* b, ...)
   return select;
 }
 
+int select(double x, double y, int count, const char* a, const char* b, ...)
+{
+  va_list ap;
+  va_start(ap, b);
+  return select(x, y, count, a, b, ap);
+}
+
+int select(int count, const char* a, const char* b, ...)
+{
+  va_list ap;
+  va_start(ap, b);
+  const int result = select(0, text_y_offset, count, a, b, ap);
+  text_y_offset += 40;
+  return result;
+}
+
 int select_number(double x, double y, int min, int max)
 {
   const glm::vec2 textPosOrigin = screen_coord_to_clip_coord(win_to_ogl_coord(x, y));
-  int select = 0;
+  int select = min;
   GLFWEW::Window& window = GLFWEW::Window::Instance();
   float timer = 0;
   main_loop([&] {
     const GamePad gamepad = window.GetGamePad();
     const int unit = (gamepad.buttons & (GamePad::L | GamePad::R)) ? 10 : 1;
-    if (gamepad.buttonDown & GamePad::DPAD_UP) {
+    if (gamepad.buttonDown & GamePad::DPAD_LEFT) {
       select -= unit;
       if (select < min) {
         select = min;
       }
       timer = 0;
-    } else if (gamepad.buttonDown & GamePad::DPAD_DOWN) {
+    } else if (gamepad.buttonDown & GamePad::DPAD_RIGHT) {
       select += unit;
       if (select > max) {
         select = max;
@@ -656,17 +686,40 @@ int select_number(double x, double y, int min, int max)
     std::wstring str;
     int i = select;
     for (int j = max; j > 0; j /= 10) {
-      str.push_back(L'0' + i % 10);
+      str.push_back(L'０' + i % 10);
       i /= 10;
     }
     std::reverse(str.begin(), str.end());
 
+    const float xadvance = fontRenderer.XAdvance();
+    fontRenderer.Propotional(false);
+    fontRenderer.AddString(textPosOrigin, L"＜");
+    fontRenderer.AddString(textPosOrigin + screen_coord_to_clip_coord(glm::vec2(xadvance * (1 + str.size()), 0)), L"＞");
     fontRenderer.Color(timer < 0.5f ? glm::vec4(1, 1, 1, 1) : glm::vec4(0.5f, 0.5f, 0.5f, 1));
-    fontRenderer.AddString(textPosOrigin, str.c_str());
+    fontRenderer.AddString(textPosOrigin + screen_coord_to_clip_coord(glm::vec2(xadvance, 0)), str.c_str());
+    fontRenderer.Propotional(true);
     fontRenderer.UnmapBuffer();
     return false;
   });
+
+  std::string str;
+  static const char zero[] = "０";
+  int i = select;
+  for (int j = max; j > 0; j /= 10) {
+    str.push_back(zero[1] + i % 10);
+    str.push_back(zero[0]);
+    i /= 10;
+  }
+  std::reverse(str.begin(), str.end());
+  set_text(fontRenderer.XAdvance(), text_y_offset, str.data());
+  text_y_offset += 40;
+
   return select;
+}
+
+int select_number(int min, int max)
+{
+  return select_number(0, text_y_offset, min, max);
 }
 
 void select_string(double x, double y, int max, char* buffer)

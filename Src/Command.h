@@ -16,6 +16,7 @@ class ImageNo;
 * ウィンドウの大きさは横800ドット、縦600ドットである.
 */
 void set_text(double x, double y, const char* format, ...);
+void set_text(const char* format, ...);
 
 /**
 * すべての文字を消す.
@@ -233,6 +234,7 @@ int wait_game_key(bool trigger);
 * 選択肢はひとつずつ改行されて下に並ぶので、選択肢を増やす際はウィンドウをはみ出さないように注意すること.
 */
 int select(double x, double y, int count, const char* a, const char* b, ...);
+int select(int count, const char* a, const char* b, ...);
 
 /**
 * 指定した範囲の数値から、選択された値を得る.
@@ -250,6 +252,7 @@ int select(double x, double y, int count, const char* a, const char* b, ...);
 * LまたはRキー(キーボードの場合左Ctrlキーまたは左Shiftキー)を押しながら上下キーを押すと10刻みで選択できる.
 */
 int select_number(double x, double y, int min, int max);
+int select_number(int min, int max);
 
 /**
 * 文字選択パネルを表示し、選択された文字列を得る.
