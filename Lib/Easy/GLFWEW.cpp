@@ -29,9 +29,11 @@ void Window::KeyCallback(GLFWwindow* pWindow, int key, int scancode, int action,
   Window& window = *static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
   if (action == GLFW_RELEASE) {
     window.keyPressed[key] = false;
+    window.keyChanged = true;
     --window.numOfKeyPressed;
   } else if (action == GLFW_PRESS) {
     window.keyPressed[key] = true;
+    window.keyChanged = true;
     ++window.numOfKeyPressed;
   }
 }
@@ -145,6 +147,7 @@ const GamePad& Window::GetGamePad() const
 */
 void Window::Update()
 {
+  keyChanged = false;
   UpdateGamePad();
 
   glfwGetWindowSize(window, &width, &height);

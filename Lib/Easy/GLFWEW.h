@@ -21,6 +21,7 @@ public:
   void SwapBuffers() const;
   const GamePad& GetGamePad() const;
   int NumOfKeyPressed() const { return numOfKeyPressed; }
+  bool KeyChanged() const { return keyChanged; }
   void Update();
   void ResetDeltaTime();
   float DeltaTime() const { return deltaTime; }
@@ -43,6 +44,7 @@ private:
   int height;
   GamePad gamepad;
   int numOfKeyPressed;
+  bool keyChanged = false;
   bool keyPressed[GLFW_KEY_LAST];
 
   double prevTime = 0;
