@@ -381,25 +381,25 @@ extern const ImageNo image_no19;
   初心者向け対策.
   マクロにすると色がつくので見分けやすくなる.
 */
-#define no0 image_no0
-#define no1 image_no1
-#define no2 image_no2
-#define no3 image_no3
-#define no4 image_no4
-#define no5 image_no5
-#define no6 image_no6
-#define no7 image_no7
-#define no8 image_no8
-#define no9 image_no9
-#define no10 image_no10
-#define no11 image_no11
-#define no12 image_no12
-#define no13 image_no13
-#define no14 image_no14
-#define no15 image_no15
-#define no16 image_no16
-#define no17 image_no17
-#define no18 image_no18
-#define no19 image_no19
+#define No_0 image_no0
+#define No_1 image_no1
+#define No_2 image_no2
+#define No_3 image_no3
+#define No_4 image_no4
+#define No_5 image_no5
+#define No_6 image_no6
+#define No_7 image_no7
+#define No_8 image_no8
+#define No_9 image_no9
+#define No_10 image_no10
+#define No_11 image_no11
+#define No_12 image_no12
+#define No_13 image_no13
+#define No_14 image_no14
+#define No_15 image_no15
+#define No_16 image_no16
+#define No_17 image_no17
+#define No_18 image_no18
+#define No_19 image_no19
 
 #endif // COMMAND_H_INCLUDED
