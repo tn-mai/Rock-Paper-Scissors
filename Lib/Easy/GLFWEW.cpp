@@ -1,6 +1,7 @@
 /**
 * @file GLFWEW.cpp
 */
+#include "Log.h"
 #include "GLFWEW.h"
 #include <iostream>
 
@@ -15,7 +16,7 @@ namespace GLFWEW {
 */
 void ErrorCallback(int error, const char* desc)
 {
-  std::cerr << "ERROR: " << desc << std::endl;
+  LOG("ERROR: %s\n", desc);
 }
 
 /**
@@ -72,7 +73,7 @@ Window::~Window()
 bool Window::Init(int w, int h, const char* title)
 {
   if (isInitialized) {
-    std::cerr << "ERROR: GLFWEW‚ÍŠù‚É‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚·." << std::endl;
+    LOG("ERROR: GLFWEW‚ÍŠù‚É‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚·.\n");
     return false;
   }
   if (!isGLFWInitialized) {
@@ -92,7 +93,7 @@ bool Window::Init(int w, int h, const char* title)
   }
 
   if (glewInit() != GLEW_OK) {
-    std::cerr << "ERROR: GLEW‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½." << std::endl;
+    LOG("ERROR: GLEW‚Ì‰Šú‰»‚ÉŽ¸”s‚µ‚Ü‚µ‚½.\n");
     return false;
   }
 

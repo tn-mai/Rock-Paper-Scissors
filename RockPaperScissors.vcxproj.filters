@@ -95,5 +95,8 @@
     <ClInclude Include="Src\Command.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Lib\Easy\Log.h">
+      <Filter>ソース ファイル\Easy</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

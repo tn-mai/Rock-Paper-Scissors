@@ -3,6 +3,7 @@
 */
 #include "Shader.h"
 #include "UniformBuffer.h"
+#include "Log.h"
 #include <vector>
 #include <iostream>
 #include <cstdint>
@@ -34,7 +35,7 @@ GLuint CompileShader(GLenum type, const GLchar* string)
       buf.resize(infoLen);
       if (static_cast<int>(buf.size()) >= infoLen) {
         glGetShaderInfoLog(shader, infoLen, NULL, buf.data());
-        std::cerr << "ERROR: シェーダのコンパイルに失敗￥n" << buf.data() << std::endl;
+        LOG("ERROR: シェーダのコンパイルに失敗\n%s\n", buf.data());
       }
     }
     glDeleteShader(shader);
@@ -74,7 +75,7 @@ GLuint CreateShaderProgram(const GLchar* vsCode, const GLchar* fsCode)
       buf.resize(infoLen);
       if (static_cast<int>(buf.size()) >= infoLen) {
         glGetProgramInfoLog(program, infoLen, NULL, buf.data());
-        std::cerr << "ERROR: シェーダのリンクに失敗￥n" << buf.data() << std::endl;
+        LOG("ERROR: シェーダのリンクに失敗\n%s\n", buf.data());
       }
     }
     glDeleteProgram(program);
@@ -124,12 +125,12 @@ GLuint CreateProgramFromFile(const char* vsFilename, const char* fsFilename)
 {
   std::vector<char> vsBuf;
   if (!ReadFile(vsFilename, vsBuf)) {
-    std::cerr << "ERROR in Shader::CreateProgramFromFile:￥n" << vsFilename << "を読み込めません." << std::endl;
+    LOG("ERROR(CreateProgramFromFile): %sを読み込めません.\n", vsFilename);
     return 0;
   }
   std::vector<char> fsBuf;
   if (!ReadFile(fsFilename, fsBuf)) {
-    std::cerr << "ERROR in Shader::CreateProgramFromFile:￥n" << fsFilename << "を読み込めません." << std::endl;
+    LOG("ERROR(CreateProgramFromFile): %sを読み込めません.\n", fsFilename);
     return 0;
   }
   return CreateShaderProgram(vsBuf.data(), fsBuf.data());
@@ -148,7 +149,7 @@ ProgramPtr Program::Create(const char* vsFilename, const char* fsFilename)
   struct Impl : Program {};
   ProgramPtr p = std::make_shared<Impl>();
   if (!p) {
-    std::cerr << "ERROR: プログラム'" << vsFilename << "'の作成に失敗" << std::endl;
+    LOG("ERROR(Program::Create): %sの作成に失敗.\n", vsFilename);
     return {};
   }
   p->program = CreateProgramFromFile(vsFilename, fsFilename);
@@ -168,7 +169,7 @@ ProgramPtr Program::Create(const char* vsFilename, const char* fsFilename)
       p->samplerCount = size;
       p->samplerLocation = glGetUniformLocation(p->program, name);
       if (p->samplerLocation < 0) {
-        std::cerr << "ERROR: プログラム'" << vsFilename << "'の作成に失敗" << std::endl;
+        LOG("ERROR(Program::Create): %sの作成に失敗.\n", vsFilename);
         return {};
       }
       break;
@@ -205,15 +206,13 @@ bool Program::UniformBlockBinding(const char* blockName, GLuint bindingPoint)
 {
   const GLuint blockIndex = glGetUniformBlockIndex(program, blockName);
   if (blockIndex == GL_INVALID_INDEX) {
-    std::cerr << "ERROR(" << name << "): Uniformブロック'" << blockName <<
-      "'が見つかりません" << std::endl;
+    LOG("ERROR(Program::UniformBlockBinding): %sにUniformブロック'%s'が見つかりません.\n", name.c_str(), blockName);
     return false;
   }
   glUniformBlockBinding(program, blockIndex, bindingPoint);
   const GLenum result = glGetError();
   if (result != GL_NO_ERROR) {
-    std::cerr << "ERROR(" << name << "): Uniformブロック'" << blockName <<
-      "'のバインドに失敗" << std::endl;
+    LOG("ERROR(Program::UniformBlockBinding): %sにUniformブロック'%s'をバインドできません.\n", name.c_str(), blockName);
     return false;
   }
   return true;

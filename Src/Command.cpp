@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Font.h"
 #include "Audio.h"
+#include "Log.h"
 #include <glm/gtc/constants.hpp>
 #include <vector>
 #include <string>
@@ -310,7 +311,7 @@ void initialize()
   }
 
   if (!Audio::Engine::Get().Initialize()) {
-    std::cerr << "Audio Engineの初期化に失敗." << std::endl;
+    LOG("WARNING: Audio Engineの初期化に失敗\n.");
   }
 
   setlocale(LC_CTYPE, "JPN");
@@ -576,6 +577,14 @@ int wait_game_key(bool trigger)
 
 int select(double x, double y, int count, const char* a, const char* b, va_list ap)
 {
+  if (count < 0) {
+    LOG("WARNING: 選択肢の数に負の値が指定されています. 正の値にしてください.\n");
+    return 0;
+  } else if (count > 8) {
+    LOG("WARNING: 選択肢の数が多すぎます. 8以下にしてください.\n");
+    count = 8;
+  }
+
   std::vector<std::wstring> selectionList;
 
   selectionList.push_back(sjis_to_utf16(a));

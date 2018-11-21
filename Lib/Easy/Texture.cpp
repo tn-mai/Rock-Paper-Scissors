@@ -2,6 +2,7 @@
 * @file Texture.cpp
 */
 #include "Texture.h"
+#include "Log.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -364,13 +365,13 @@ DDSHeaderDX10 ReadDDSHeaderDX10(const uint8_t* buf)
 GLuint LoadDDS(const char* filename, const struct stat& st, const uint8_t* buf, DDSHeader* pHeader)
 {
   if (st.st_size < 128) {
-    std::cerr << "WARNING: " << filename << "はDDSファイルではありません." << std::endl;
+    LOG("WARNING: %sはDDSファイルではありません.\n", filename);
     return 0;
   }
 
   const DDSHeader header = ReadDDSHeader(buf + 4);
   if (header.size != 124) {
-    std::cerr << "WARNING: " << filename << "はDDSファイルではありません." << std::endl;
+    LOG("WARNING: %sはDDSファイルではありません.\n", filename);
     return 0;
   }
   GLenum iformat;
@@ -423,14 +424,14 @@ GLuint LoadDDS(const char* filename, const struct stat& st, const uint8_t* buf, 
       case DXGI_FORMAT_BC7_UNORM: iformat = GL_COMPRESSED_RGBA_BPTC_UNORM; break;
       case DXGI_FORMAT_BC7_UNORM_SRGB: iformat = GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM; break;
       default:
-        std::cerr << "WARNING: " << filename << "は未対応のDDSファイルです." << std::endl;
+        LOG("WARNING: %sは未対応のDDSファイルです.\n", filename);
         return 0;
       }
       imageOffset = 128 + 20; // DX10ヘッダのぶんを加算.
       break;
     }
     default:
-      std::cerr << "WARNING: " << filename << "は未対応のDDSファイルです." << std::endl;
+      LOG("WARNING: %sは未対応のDDSファイルです.\n", filename);
       return 0;
     }
     isCompressed = true;
@@ -443,7 +444,7 @@ GLuint LoadDDS(const char* filename, const struct stat& st, const uint8_t* buf, 
       format = header.ddspf.alphaBitMask ? GL_BGRA : GL_BGR;
     }
   } else {
-    std::cerr << "WARNING: " << filename << "は未対応のDDSファイルです." << std::endl;
+    LOG("WARNING: %sは未対応のDDSファイルです.\n", filename);
     return 0;
   }
 
@@ -476,10 +477,10 @@ GLuint LoadDDS(const char* filename, const struct stat& st, const uint8_t* buf, 
       case GL_NO_ERROR:
         break;
       case GL_INVALID_OPERATION:
-        std::cerr << "WARNING: " << filename << "の読み込みに失敗." << std::endl;
+        LOG("WARNING: %sの読み込みに失敗.\n", filename);
         break;
       default:
-        std::cerr << "WARNING: " << filename << "の読み込みに失敗(" << std::hex << result << ")." << std::endl;
+        LOG("WARNING: %sの読み込みに失敗(0x%X).\n", filename, result);
         break;
       }
       curWidth = std::max(1, curWidth / 2);
@@ -515,7 +516,7 @@ void Texture::Initialize()
 {
   if (!wic::imagingFactory) {
     if (FAILED(CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&wic::imagingFactory)))) {
-      std::cout << "WICImagingFactoryの作成に失敗." << std::endl;
+      LOG("ERROR: WICImagingFactoryの作成に失敗.");
     }
   }
 }
@@ -555,7 +556,7 @@ TexturePtr Texture::Create(
     GL_TEXTURE_2D, 0, iformat, width, height, 0, format, type, data);
   const GLenum result = glGetError();
   if (result != GL_NO_ERROR) {
-    std::cerr << "ERROR テクスチャ作成に失敗: 0x" << std::hex << result << std::endl;
+    LOG("ERROR: テクスチャの作成に失敗(0x%X).\n", result);
     return {};
   }
 

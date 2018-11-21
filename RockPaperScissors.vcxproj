@@ -127,6 +127,7 @@ if not exist "$(TargetDir)glew32.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(C
     <ClInclude Include="Lib\Easy\FrameAnimation.h" />
     <ClInclude Include="Lib\Easy\GamePad.h" />
     <ClInclude Include="Lib\Easy\GLFWEW.h" />
+    <ClInclude Include="Lib\Easy\Log.h" />
     <ClInclude Include="Lib\Easy\Node.h" />
     <ClInclude Include="Lib\Easy\Shader.h" />
     <ClInclude Include="Lib\Easy\Sprite.h" />

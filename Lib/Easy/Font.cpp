@@ -2,6 +2,7 @@
 * @file Font.cpp
 */
 #include "Font.h"
+#include "Log.h"
 #include <memory>
 #include <iostream>
 #include <stdio.h>
@@ -35,7 +36,7 @@ struct Vertex
 bool Renderer::Init(size_t maxChar, const glm::vec2& screen)
 {
   if (maxChar > (USHRT_MAX + 1) / 4) {
-    std::cerr << "WARNING: " << maxChar << "‚ÍÝ’è‰Â”\‚ÈÅ‘å•¶Žš”‚ð‰z‚¦‚Ä‚¢‚Ü‚·"<< std::endl;
+    LOG("WARNING: %d‚ÍÝ’è‰Â”\‚ÈÅ‘å•¶Žš”‚ð‰z‚¦‚Ä‚¢‚Ü‚·.\n", maxChar);
     maxChar = (USHRT_MAX + 1) / 4;
   }
   vboCapacity = static_cast<GLsizei>(4 * maxChar);
@@ -94,7 +95,7 @@ bool Renderer::LoadFromFile(const char* filename)
   glm::vec2 scale;
   ret = fscanf(fp.get(), " common lineHeight=%*d base=%*d scaleW=%f scaleH=%f pages=%*d packed=%*d", &scale.x, &scale.y);
   if (ret < 2) {
-    std::cerr << "ERROR: '" << filename << "'‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=" << line << ")" << std::endl;
+   LOG("ERROR: %s‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=%d)\n", filename, line);
     return false;
   }
   const glm::vec2 reciprocalScale = glm::vec2(1.0f / scale);
@@ -120,14 +121,14 @@ bool Renderer::LoadFromFile(const char* filename)
     ++line;
   }
   if (texNameList.empty()) {
-    std::cerr << "ERROR: '" << filename << "'‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=" << line << ")" << std::endl;
+    LOG("ERROR: %s‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=%d)\n", filename, line);
     return false;
   }
 
   int charCount;
   ret = fscanf(fp.get(), " chars count=%d", &charCount);
   if (ret < 1) {
-    std::cerr << "ERROR: '" << filename << "'‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=" << line << ")" << std::endl;
+    LOG("ERROR: %s‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=%d)\n", filename, line);
     return false;
   }
   ++line;
@@ -139,7 +140,7 @@ bool Renderer::LoadFromFile(const char* filename)
     glm::vec2 uv;
     ret = fscanf(fp.get(), " char id=%d x=%f y=%f width=%f height=%f xoffset=%f yoffset=%f xadvance=%f page=%*d chnl=%*d", &font.id, &uv.x, &uv.y, &font.size.x, &font.size.y, &font.offset.x, &font.offset.y, &font.xadvance);
     if (ret < 8) {
-      std::cerr << "ERROR: '" << filename << "'‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=" << line << ")" << std::endl;
+      LOG("ERROR: %s‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=%d)\n", filename, line);
       return false;
     }
     font.offset.y *= -1;
@@ -276,7 +277,7 @@ void Renderer::MapBuffer()
   pVBO = static_cast<Vertex*>(glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vboCapacity, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
   if (!pVBO) {
     const GLenum err = glGetError();
-    std::cerr << "ERROR: MapBufferŽ¸”s(0x" << std::hex << err << ")" << std::endl;
+    LOG("ERROR: MapBufferŽ¸”s(0x%X).\n", err);
   }
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   vboSize = 0;
