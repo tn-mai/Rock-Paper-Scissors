@@ -50,6 +50,7 @@ public:
   void Propotional(bool b) { propotional = b; }
   bool Propotional() const { return propotional; }
   void XAdvance(float x) { fixedAdvance = x; }
+  float XAdvance() const { return fixedAdvance; }
 
   bool AddString(const glm::vec2& position, const wchar_t* str);
   void MapBuffer();

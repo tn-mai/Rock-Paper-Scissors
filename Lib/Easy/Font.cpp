@@ -219,7 +219,7 @@ bool Renderer::AddString(const glm::vec2& position, const wchar_t* str)
       p += 4;
       vboSize += 4;
     }
-    pos.x += (propotional ? (font.xadvance * reciprocalScreenSize.x) : fixedAdvance) * scale.x;
+    pos.x += (propotional ? font.xadvance : fixedAdvance) * reciprocalScreenSize.x * scale.x;
   }
   return true;
 }
