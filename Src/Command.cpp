@@ -302,11 +302,20 @@ void main_loop(T func)
 /**
 * EasyÇ®ÇÊÇ—CommandÉâÉCÉuÉâÉäÇÃèâä˙âª.
 */
-void initialize()
+void initialize(const char* title)
 {
+  FreeConsole();
+
+  const int wcs_size = MultiByteToWideChar(CP_ACP, 0, title, -1, nullptr, 0);
+  std::vector<wchar_t> wcs_title(wcs_size, L'\0');
+  MultiByteToWideChar(CP_ACP, 0, title, -1, wcs_title.data(), wcs_title.size());
+  const int utf8_size = WideCharToMultiByte(CP_UTF8, 0, wcs_title.data(), wcs_title.size(), nullptr, 0, nullptr, nullptr);
+  std::vector<char> utf8_title(utf8_size, u8'\0');
+  WideCharToMultiByte(CP_UTF8, 0, wcs_title.data(), wcs_title.size(), utf8_title.data(), utf8_title.size(), nullptr, nullptr);
+
   CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
   GLFWEW::Window& window = GLFWEW::Window::Instance();
-  if (!window.Init(800, 600, "OpenGL 2D")) {
+  if (!window.Init(800, 600, utf8_title.data())) {
     exit(1);
   }
 

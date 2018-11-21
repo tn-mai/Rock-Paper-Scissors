@@ -324,8 +324,10 @@ void set_bgm_volume(double volume);
 
 /**
 * Commandライブラリを初期化する.
+*
+* @param title ウィンドウに表示される文章.
 */
-void initialize();
+void initialize(const char* title);
 
 /**
 * Commandライブラリを終了する.
