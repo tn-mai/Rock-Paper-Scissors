@@ -57,8 +57,14 @@
       <AdditionalDependencies>mfplat.lib;mfuuid.lib;mfreadwrite.lib;xaudio2.lib;opengl32.lib;glfw3dll.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(TargetDir)glfw3.dll" xcopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)\glfw3.dll" "$(TargetDir)"
-if not exist "$(TargetDir)glew32d.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)\glew32d.dll" "$(TargetDir)"
+      <Command>if not exist "$(TargetDir)glfw3.dll" (
+  robocopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glfw3.dll
+  if %errorlevel% lss 8 time /t &gt; nul
+)
+if not exist "$(TargetDir)glew32d.dll" (
+  robocopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glew32d.dll
+  if %errorlevel% lss 8 time /t &gt; nul
+)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -80,8 +86,14 @@ if not exist "$(TargetDir)glew32d.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(
       <AdditionalDependencies>mfplat.lib;mfuuid.lib;mfreadwrite.lib;xaudio2.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(TargetDir)glfw3.dll" xcopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)\glfw3.dll" "$(TargetDir)"
-if not exist "$(TargetDir)glew32.dll" xcopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)\glew32.dll" "$(TargetDir)"
+      <Command>if not exist "$(TargetDir)glfw3.dll" (
+  robocopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glfw3.dll
+  if %errorlevel% lss 8 time /t &gt; nul
+)
+if not exist "$(TargetDir)glew32d.dll" (
+  robocopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glew32.dll
+  if %errorlevel% lss 8 time /t &gt; nul
+)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
