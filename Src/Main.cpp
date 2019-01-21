@@ -7,7 +7,7 @@ int main()
   initialize("‚¶‚á‚ñ‚¯‚ñƒQ[ƒ€");
 
   // ”wŒi‚ğ•\¦
-  set_image(No_0, 400, 300, "”wŒi_†.jpg");
+  set_image(No_0, 400, 300, "bg_paper.jpg");
 
   // •¶Í‚ğ•\¦
   set_text("‚¶‚á‚ñ‚¯‚ñ‚Û‚ñI");
