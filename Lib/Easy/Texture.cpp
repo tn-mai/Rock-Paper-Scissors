@@ -1,6 +1,7 @@
 /**
 * @file Texture.cpp
 */
+#define NOMINMAX
 #include "Texture.h"
 #include "Log.h"
 #include <iostream>

@@ -1,6 +1,7 @@
 /**
 * @file Audio.cpp
 */
+#define NOMINMAX
 #include "Audio.h"
 #include <xaudio2.h>
 #include <vector>
@@ -12,6 +13,11 @@
 #include <mfidl.h>
 #include <mfapi.h>
 #include <mfreadwrite.h>
+
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "mfuuid.lib")
+#pragma comment(lib, "mfreadwrite.lib")
+#pragma comment(lib, "xaudio2.lib")
 
 using Microsoft::WRL::ComPtr;
 
