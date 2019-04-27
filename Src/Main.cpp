@@ -10,7 +10,7 @@ int main()
   set_image(No_0, 400, 300, "背景_紙.jpg");
 
   // 文章を表示
-  set_text("じゃんけんぽん！");
+  printf("じゃんけんぽん！");
 
   // じゃんけんの手を定義する
   int gu = 0;
@@ -28,11 +28,11 @@ int main()
 
   // 勝敗を判定する
   if (player_hand == gu && cpu_hand == choki) {
-    set_text("あなたの勝ちです！");
+    printf("あなたの勝ちです！");
   }
 
   // 何かキーが押されるまで待つ
-  set_text("何かキーを押すと終了します");
+  printf("何かキーを押すと終了します");
   wait_any_key();
 
   // プログラムの終了処理

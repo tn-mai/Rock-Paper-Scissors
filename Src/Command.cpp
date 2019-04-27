@@ -1,6 +1,7 @@
 /**
 * @file Command.cpp
 */
+#define USE_COMMAND_NAMESPACE
 #include <objbase.h>
 #include "Command.h"
 #include "GLFWEW.h"
@@ -17,6 +18,8 @@
 #include <stdarg.h>
 #include <algorithm>
 #include <unordered_map>
+
+namespace Command {
 
 bool hasQuitRequest = false;
 
@@ -268,7 +271,7 @@ void main_loop(T func)
     window.Update();
     const GamePad gamepad = window.GetGamePad();
     if (window.ShouldClose() || (gamepad.buttonDown & GamePad::ESC)) {
-      quit();
+      finalize();
       exit(0);
       break;
     }
@@ -378,14 +381,14 @@ void set_text(double x, double y, const char* format, va_list ap)
   textList.push_back({ screen_coord_to_clip_coord(opengl_pos), sjis_to_utf16(tmp) });
 }
 
-void set_text(double x, double y, const char* format, ...)
+void xyprintf(double x, double y, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
   set_text(x, y, format, ap);
 }
 
-void set_text(const char* format, ...)
+void printf(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -405,7 +408,7 @@ void reset_text_area(double x, double y, double width, double height)
   const glm::vec2 max = screen_coord_to_clip_coord(win_to_ogl_coord(x + width, y + height));
   const auto itr = std::remove_if(textList.begin(), textList.end(), [min, max](const text_info& e) {
     return (e.pos.x >= min.x) && (e.pos.x < max.x) && (e.pos.y >= min.y) && (e.pos.y < max.y);
-  });
+    });
   textList.erase(itr, textList.end());
 }
 
@@ -517,7 +520,7 @@ void wait(double seconds)
     GLFWEW::Window& window = GLFWEW::Window::Instance();
     seconds -= window.DeltaTime();
     return seconds <= 0;
-  });
+    });
 }
 
 void wait_any_key()
@@ -543,7 +546,7 @@ void wait_any_key()
 
     const GamePad gamepad = window.GetGamePad();
     return gamepad.buttonDown || window.KeyChanged();
-  });
+    });
 }
 
 int wait_game_key(bool trigger)
@@ -580,7 +583,7 @@ int wait_game_key(bool trigger)
       }
     }
     return false;
-  });
+    });
   return result;
 }
 
@@ -644,7 +647,7 @@ int select(double x, double y, int count, const char* a, const char* b, va_list 
     }
     fontRenderer.UnmapBuffer();
     return false;
-  });
+    });
   return select;
 }
 
@@ -718,7 +721,7 @@ int select_number(double x, double y, int min, int max)
     fontRenderer.Propotional(true);
     fontRenderer.UnmapBuffer();
     return false;
-  });
+    });
 
   std::string str;
   static const char zero[] = "‚O";
@@ -729,7 +732,7 @@ int select_number(double x, double y, int min, int max)
     i /= 10;
   }
   std::reverse(str.begin(), str.end());
-  set_text(fontRenderer.XAdvance(), text_y_offset, str.data());
+  xyprintf(fontRenderer.XAdvance(), text_y_offset, str.data());
   text_y_offset += 40;
 
   return select;
@@ -915,13 +918,13 @@ void select_string(double x, double y, int max, char* buffer)
     std::wstring dispBuffer(tmpBuffer);
     dispBuffer.insert(dispBuffer.end(), max - tmpBuffer.size(), L'–');
     fontRenderer.AddString(textPosOrigin, dispBuffer.c_str());
-  
+
     const float nextCharOffset = 32.0f / static_cast<float>(window.Width() / 2);
     const float nextLineOffset = 32.0f / static_cast<float>(window.Height() / 2);
     for (int i = 0; i < sizeof(charTable) / sizeof(charTable[0]); ++i) {
       glm::vec4 color(0.5f, 0.5f, 0.5f, 1);
       if (select == i && timer < 0.5f) {
-        color = {1, 1, 1, 1};
+        color = { 1, 1, 1, 1 };
       }
       fontRenderer.Color(color);
       const char_data& e = charTable[i];
@@ -939,7 +942,7 @@ void select_string(double x, double y, int max, char* buffer)
     }
     fontRenderer.UnmapBuffer();
     return false;
-  });
+    });
 }
 
 int random(int min, int max)
@@ -1005,3 +1008,5 @@ void set_bgm_volume(double volume)
     bgm->SetVolume(bgmVolume);
   }
 }
+
+} // namespace Command

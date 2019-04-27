@@ -1,6 +1,8 @@
 #ifndef COMMAND_H_INCLUDED
 #define COMMAND_H_INCLUDED
 
+namespace Command {
+
 // 前方宣言.
 class ImageNo;
 
@@ -9,14 +11,14 @@ class ImageNo;
 *
 * @param  x      表示開始位置の左端座標.
 * @param  y      表示開始位置の下端座標.
-* @param  format 文字の書式指定(printf関数のものと同じ).
-* @param  ...    追加の引数(printf関数のものと同じ).
+* @param  format 文字の書式指定(C言語のprintf関数のものと同じ).
+* @param  ...    追加の引数(C言語のprintf関数のものと同じ).
 *
 * 表示開始位置はウィンドウの左上を原点とし、左右がX軸(右がプラス方向)、上下がY軸(下がプラス方向)の座標系で指定する.
 * ウィンドウの大きさは横800ドット、縦600ドットである.
 */
-void set_text(double x, double y, const char* format, ...);
-void set_text(const char* format, ...);
+void xyprintf(double x, double y, const char* format, ...);
+void printf(const char* format, ...);
 
 /**
 * すべての文字を消す.
@@ -31,10 +33,10 @@ void reset_all_text();
 * @param  width  消去範囲の横幅.
 * @param  height 消去範囲の縦幅.
 *
-* 範囲内かどうかの判定には、set_text関数に設定した座標が使われる.
-* また、文字列の一部が範囲外にあったとしても、set_textで設定した座標が範囲内にあるなら全て消去される.
+* 範囲内かどうかの判定には、xyprintf関数に設定した座標が使われる.
+* また、文字列の一部が範囲外にあったとしても、xyprintfで設定した座標が範囲内にあるなら全て消去される.
 *
-* 例えばset_textを使って、左端座標に右端まで届くような長い文字列を表示したとする.
+* 例えばxyprintfを使って、左端座標に右端まで届くような長い文字列を表示したとする.
 * 消去範囲を中央から右端までとした場合、この文字列は1文字も消えない.
 * 消去範囲を左端から中央までとした場合、この文字列はすべて消える.
 */
@@ -401,5 +403,11 @@ extern const ImageNo image_no19;
 #define No_17 image_no17
 #define No_18 image_no18
 #define No_19 image_no19
+
+} // namespace Command
+
+#ifndef USE_COMMAND_NAMESPACE
+using namespace Command;
+#endif // USE_COMMAND_NAMESPACE
 
 #endif // COMMAND_H_INCLUDED
