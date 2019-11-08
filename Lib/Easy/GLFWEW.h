@@ -22,6 +22,7 @@ public:
   const GamePad& GetGamePad() const;
   int NumOfKeyPressed() const { return numOfKeyPressed; }
   bool KeyChanged() const { return keyChanged; }
+  int LastPressedKey() const { return lastPressedKey; }
   void Update();
   void ResetDeltaTime();
   float DeltaTime() const { return deltaTime; }
@@ -43,7 +44,8 @@ private:
   int width;
   int height;
   GamePad gamepad;
-  int numOfKeyPressed;
+  int numOfKeyPressed = 0;
+  int lastPressedKey = 0;
   bool keyChanged = false;
   bool keyPressed[GLFW_KEY_LAST];
 

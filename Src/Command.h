@@ -195,8 +195,11 @@ void wait(double seconds);
 
 /**
 * 何かキーが入力されるまで待つ.
+*
+* @return 押されたキーに対応する番号.
 */
-void wait_any_key();
+int wait_any_key();
+#define KEYCODE_GAMEPAD 0x1000
 
 /**
 * ゲーム操作用のキーが入力されるまで待つ.
@@ -273,12 +276,9 @@ void select_string(double x, double y, int max, char* buffer);
 /**
 * 乱数を得る.
 *
-* @param  min 取りうる範囲の最小値.
-* @param  max 取りうる範囲の最大値.
-*
-* @return min以上max以下のランダムな値.
+* @return 0以上2^31-1以下のランダムな値.
 */
-int random(int min, int max);
+int random();
 
 /**
 * アプリケーションを終了する.

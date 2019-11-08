@@ -67,12 +67,12 @@ enum easing_type
 template<typename T>
 struct action
 {
-  T start;
-  T end;
-  easing_type easing;
-  float seconds;
+  T start = T{};
+  T end = T{};
+  easing_type easing = linear;
+  float seconds = 0;
 
-  float timer;
+  float timer = 0;
 
   void init(const T& s, const T& e, int ease, double sec) {
     start = s;
@@ -316,7 +316,10 @@ void initialize(const char* title)
   std::vector<char> utf8_title(utf8_size, u8'\0');
   WideCharToMultiByte(CP_UTF8, 0, wcs_title.data(), wcs_title.size(), utf8_title.data(), utf8_title.size(), nullptr, nullptr);
 
-  CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+  if (CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED) != S_OK) {
+    LOG("WARNING: CoInitializeExÇ…é∏îs\n.");
+    exit(1);
+  }
   GLFWEW::Window& window = GLFWEW::Window::Instance();
   if (!window.Init(800, 600, utf8_title.data())) {
     exit(1);
@@ -523,9 +526,10 @@ void wait(double seconds)
     });
 }
 
-void wait_any_key()
+int wait_any_key()
 {
   float timer = 0;
+  int result;
   main_loop([&] {
     GLFWEW::Window& window = GLFWEW::Window::Instance();
 
@@ -544,9 +548,16 @@ void wait_any_key()
     fontRenderer.AddString(markerPos, L"Åﬁ");
     fontRenderer.UnmapBuffer();
 
-    const GamePad gamepad = window.GetGamePad();
-    return gamepad.buttonDown || window.KeyChanged();
+    result = window.LastPressedKey();
+    if (!result) {
+      const GamePad gamepad = window.GetGamePad();
+      if (gamepad.buttonDown) {
+        result = KEYCODE_GAMEPAD;
+      }
+    }
+    return result;
     });
+  return result;
 }
 
 int wait_game_key(bool trigger)
@@ -945,9 +956,9 @@ void select_string(double x, double y, int max, char* buffer)
     });
 }
 
-int random(int min, int max)
+int random()
 {
-  return std::uniform_int_distribution<>(min, max)(randomEngine);
+  return std::uniform_int_distribution<int>(0, std::numeric_limits<int>::max())(randomEngine);
 }
 
 void quit()

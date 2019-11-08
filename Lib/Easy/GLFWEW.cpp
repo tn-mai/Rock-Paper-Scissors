@@ -32,10 +32,14 @@ void Window::KeyCallback(GLFWwindow* pWindow, int key, int scancode, int action,
     window.keyPressed[key] = false;
     window.keyChanged = true;
     --window.numOfKeyPressed;
+    if (window.lastPressedKey == key) {
+      window.lastPressedKey = 0;
+    }
   } else if (action == GLFW_PRESS) {
     window.keyPressed[key] = true;
     window.keyChanged = true;
     ++window.numOfKeyPressed;
+    window.lastPressedKey = key;
   }
 }
 
