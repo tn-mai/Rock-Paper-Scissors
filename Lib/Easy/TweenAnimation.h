@@ -142,8 +142,8 @@ private:
 
   std::vector<TweenPtr> seq; ///< トウィーニングリスト.
   int index = -1;///< 実行中のトウィーニングオブジェクトのインデックス.
-  glm::f32 currentDurationBegin;///< 実行中のトウィーニングオブジェクトの開始時間.
-  glm::f32 currentDurationEnd;///< 実行中のトウィーニングオブジェクトの終了時間.
+  glm::f32 currentDurationBegin = 0;///< 実行中のトウィーニングオブジェクトの開始時間.
+  glm::f32 currentDurationEnd = 0;///< 実行中のトウィーニングオブジェクトの終了時間.
 };
 
 /**
@@ -198,8 +198,8 @@ public:
   virtual void Update(Node& node, glm::f32 dt) override;
 
 private:
-  glm::f32 start;
-  glm::f32 rotation;
+  glm::f32 start = 0;
+  glm::f32 rotation = 0;
 };
 
 /**

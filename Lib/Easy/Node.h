@@ -8,6 +8,8 @@
 #include <deque>
 #include <string>
 
+class SpriteRenderer;
+
 /**
 * ノードクラス.
 *

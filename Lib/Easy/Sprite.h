@@ -57,7 +57,7 @@ private:
   TexturePtr texture;
   Rect rect = { glm::vec2(0, 0), glm::vec2(1, 1) };
   glm::vec4 color = glm::vec4(1);
-  BlendMode colorMode;
+  BlendMode colorMode = BlendMode_Multiply;
 
   FrameAnimation::AnimatePtr animator;
 };
