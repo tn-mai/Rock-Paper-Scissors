@@ -56,17 +56,6 @@
       <AdditionalLibraryDirectories>$(ProjectDir)Lib\glfw-3.2.1\lib\Debug\Win32;$(ProjectDir)Lib\glew-2.1.0\lib\Debug\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3dll.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(TargetDir)glfw3.dll" (
-  robocopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glfw3.dll
-  if %errorlevel% lss 8 time /t &gt; nul
-)
-if not exist "$(TargetDir)glew32d.dll" (
-  robocopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glew32d.dll
-  if %errorlevel% lss 8 time /t &gt; nul
-)
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -85,17 +74,6 @@ if not exist "$(TargetDir)glew32d.dll" (
       <AdditionalLibraryDirectories>$(ProjectDir)Lib\glfw-3.2.1\lib\Release\Win32;$(ProjectDir)Lib\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>mfplat.lib;mfuuid.lib;mfreadwrite.lib;xaudio2.lib;opengl32.lib;glfw3dll.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(TargetDir)glfw3.dll" (
-  robocopy "$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glfw3.dll
-  if %errorlevel% lss 8 time /t &gt; nul
-)
-if not exist "$(TargetDir)glew32d.dll" (
-  robocopy "$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)" "$(TargetDir)\" glew32.dll
-  if %errorlevel% lss 8 time /t &gt; nul
-)
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Lib\Easy\Audio.cpp">
@@ -150,4 +128,14 @@ if not exist "$(TargetDir)glew32d.dll" (
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="AfterBuild" AfterTargets="Build">
+    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      <ContentFiles Include="$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)\glew32d.dll" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      <ContentFiles Include="$(ProjectDir)Lib\glew-2.1.0\lib\$(ConfigurationName)\$(PlatformName)\glew32.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="$(ProjectDir)Lib\glfw-3.2.1\lib\$(ConfigurationName)\$(PlatformName)\glfw3.dll" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ContentFiles)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
