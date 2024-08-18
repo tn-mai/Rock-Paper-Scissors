@@ -3,38 +3,47 @@
 // ここからプログラムの実行が開始される
 int main()
 {
-  // プログラムの初期化処理
-  initialize("じゃんけんゲーム");
+    // プログラムの初期化処理
+    initialize("じゃんけんゲーム");
 
-  // 背景を表示
-  set_image(No_0, 400, 300, "bg_paper.jpg");
+    // 背景を表示
+    image background;
+    background.set(400, 300, "bg_paper.jpg");
 
-  // 文章を表示
-  printf("じゃんけんぽん！");
+    // 文章を表示
+    printf("じゃんけんぽん！");
 
-  // じゃんけんの手を定義する
-  int gu = 0;
-  int choki = 1;
-  int pa = 2;
+    // じゃんけんの手を定義する
+    int gu = 0;
+    int choki = 1;
+    int pa = 2;
 
-  // あなたの手
-  int player_hand = gu;
+    // プレイヤーの手を決める
+    int player_hand = gu;
 
-  // コンピューターの手
-  int cpu_hand = choki;
+    // コンピューターの手を決める
+    int cpu_hand = choki;
 
-  // 1秒待つ
-  wait(1);
+    // プレイヤーの手を表示する
+    if (player_hand == gu) {
+        printf("プレイヤーの手：グー");
+    }
 
-  // 勝敗を判定する
-  if (player_hand == gu && cpu_hand == choki) {
+    // コンピューターの手を表示する
+    if (cpu_hand == choki) {
+        printf("CPUの手：チョキ");
+    }
+
+    // 1秒待つ
+    usleep(1'000'000);
+  
+    // 勝敗を表示する
     printf("あなたの勝ちです！");
-  }
 
-  // 何かキーが押されるまで待つ
-  printf("何かキーを押すと終了します");
-  wait_any_key();
+    // なにかキーが押されるまで待つ
+    printf("なにかキーを押すと終了します");
+    wait_any_key();
 
-  // プログラムの終了処理
-  finalize();
+    // プログラムの終了処理
+    finalize();
 }
