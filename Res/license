@@ -1,11 +1,13 @@
 LICENSE INFORMATION
 
 [効果音]
-当たり.mp3
-はずれ.mp3
-小鼓.mp3
-拍子木.mp3
-ボタンを押す.mp3
+se_win.mp3
+se_lose.mp3
+se_kotudumi.mp3
+se_push_button.mp3
+se_paper.mp3
+se_sissor.mp3
+se_rock.mp3
   (C)Sound Effect Lab
   http://en.soundeffect-lab.info/
 
@@ -30,3 +32,4 @@ bgm_battle.mp3
 全画像
   tn-mai
   https://github.com/tn-mai/
+
