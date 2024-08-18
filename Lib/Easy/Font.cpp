@@ -36,7 +36,7 @@ struct Vertex
 bool Renderer::Init(size_t maxChar, const glm::vec2& screen)
 {
   if (maxChar > (USHRT_MAX + 1) / 4) {
-    LOG("WARNING: %dは設定可能な最大文字数を越えています.\n", maxChar);
+    LOG("WARNING: %zuは設定可能な最大文字数を越えています.\n", maxChar);
     maxChar = (USHRT_MAX + 1) / 4;
   }
   vboCapacity = static_cast<GLsizei>(4 * maxChar);
@@ -53,13 +53,11 @@ bool Renderer::Init(size_t maxChar, const glm::vec2& screen)
     ibo.Init(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * maxChar, tmp.data(), GL_STATIC_DRAW);
   }
   vao.Init(vbo.Id(), ibo.Id());
-  vao.Bind();
-  vao.VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, position));
-  vao.VertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(Vertex), offsetof(Vertex, uv));
-  vao.VertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), offsetof(Vertex, color));
-  vao.VertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), offsetof(Vertex, subColor));
-  vao.VertexAttribPointer(4, 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(Vertex), offsetof(Vertex, thicknessAndOutline));
-  vao.Unbind();
+  vao.VertexAttribPointer(vbo.Id(), 0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, position));
+  vao.VertexAttribPointer(vbo.Id(), 1, 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(Vertex), offsetof(Vertex, uv));
+  vao.VertexAttribPointer(vbo.Id(), 2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), offsetof(Vertex, color));
+  vao.VertexAttribPointer(vbo.Id(), 3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), offsetof(Vertex, subColor));
+  vao.VertexAttribPointer(vbo.Id(), 4, 2, GL_UNSIGNED_SHORT, GL_TRUE, sizeof(Vertex), offsetof(Vertex, thicknessAndOutline));
 
   progFont = Shader::Program::Create("Res/Shader/Font.vert", "Res/Shader/Font.frag");
   if (!progFont) {
@@ -168,6 +166,23 @@ bool Renderer::LoadFromFile(const char* filename)
 }
 
 /**
+* 文字列の横のピクセル数を調べる.
+*/
+glm::vec2 Renderer::CalcStringSize(const wchar_t* str) const
+{
+  glm::vec2 pos(0);
+  for (const wchar_t* itr = str; *itr; ++itr) {
+    if (*itr == L'\n') {
+      pos.x = 0;
+      pos.y += 40.0f * scale.y;
+    }
+    const FontInfo& font = fontList[*itr];
+    pos.x += (propotional ? font.xadvance : fixedAdvance) * scale.x;
+  }
+  return pos;
+}
+
+/**
 * 文字列を追加する.
 *
 * @param position 表示開始座標.
@@ -185,6 +200,9 @@ bool Renderer::AddString(const glm::vec2& position, const wchar_t* str)
   for (const wchar_t* itr = str; *itr; ++itr) {
     if (vboSize + 4 > vboCapacity) {
       break;
+    }
+    if (*itr == L'\n') {
+      pos.y -= 40.0f * reciprocalScreenSize.y * scale.y;
     }
     const FontInfo& font = fontList[*itr];
     if (font.id >= 0 && font.size.x && font.size.y) {
@@ -308,7 +326,7 @@ void Renderer::Draw() const
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     progFont->UseProgram();
-    for (size_t i = 0; i < texList.size(); ++i) {
+    for (GLenum i = 0; i < texList.size(); ++i) {
       progFont->BindTexture(GL_TEXTURE0 + i, GL_TEXTURE_2D, texList[i]->Id());
     }
     glDrawElements(GL_TRIANGLES, (vboSize / 4) * 6, GL_UNSIGNED_SHORT, 0);

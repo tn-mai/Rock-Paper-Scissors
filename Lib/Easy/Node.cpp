@@ -46,6 +46,15 @@ void Node::RemoveChild(Node* node)
   }
 }
 
+void Node::RemoveChildrenAll()
+{
+  for (auto& e : children) {
+    e->parent = nullptr;
+    e = nullptr;
+  }
+  children.clear();
+}
+
 /**
 * ノードの状態を再帰的に更新する.
 *

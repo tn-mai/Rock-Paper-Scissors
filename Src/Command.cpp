@@ -44,22 +44,23 @@ const ImageNo image_no17(17);
 const ImageNo image_no18(18);
 const ImageNo image_no19(19);
 
+const color color_red(1, 0, 0, 1);
+const color color_yellow(1, 1, 0, 1);
+const color color_green(0, 1, 0, 1);
+const color color_light_blue(0, 1, 1, 1);
+const color color_blue(0, 0, 1, 1);
+const color color_purple(1, 0, 1, 1);
+const color color_black(0, 0, 0, 1);
+const color color_gray(0.5, 0.5, 0.5, 1);
+const color color_white(1, 1, 1, 1);
+const color color_clear(1, 1, 1, 0);
+
+int image::n = 0;
+bool isSpritePriorityChanged = false;
+
 int text_y_offset = 0; // 自動改行テキストの表示Y座標.
 
 namespace /* unnamed */ {
-
-/**
-* イージングの種類.
-*/
-enum easing_type
-{
-  linear,
-  ease_in,
-  ease_out,
-  ease_in_out,
-  ease_out_back,
-  ease_out_bounce,
-};
 
 /**
 * イージング制御クラス.
@@ -74,10 +75,10 @@ struct action
 
   float timer = 0;
 
-  void init(const T& s, const T& e, int ease, double sec) {
+  void init(const T& s, const T& e, easing_type ease, double sec) {
     start = s;
     end = e;
-    easing = static_cast<easing_type>(glm::clamp(ease, 0, static_cast<int>(ease_out_bounce)));
+    easing = static_cast<easing_type>(glm::clamp(static_cast<int>(ease), 0, max_easing_type));
     seconds = static_cast<float>(sec);
     timer = 0;
   }
@@ -90,10 +91,10 @@ struct action
     float ratio = (timer / seconds);
     switch (easing) {
     default:
-    case linear: break;
-    case ease_in: ratio *= ratio; break;
-    case ease_out: ratio = 2.0f * ratio - ratio * ratio; break;
-    case ease_in_out:
+    case easing_type::linear: break;
+    case easing_type::in: ratio *= ratio; break;
+    case easing_type::out: ratio = 2.0f * ratio - ratio * ratio; break;
+    case easing_type::in_out:
       ratio *= 2.0f;
       if (ratio < 1.0f) {
         ratio *= ratio;
@@ -104,13 +105,13 @@ struct action
       }
       ratio *= 0.5f;
       break;
-    case ease_out_back: {
+    case easing_type::back: {
       static const float scale = 1.70158f * 1.525f;
       ratio -= 1;
       ratio = 1 + 2.70158f * ratio * ratio * ratio + 1.70158f * ratio * ratio;
       break;
     }
-    case ease_out_bounce: {
+    case easing_type::bounce: {
       if (ratio < (1 / 2.75f)) {
         ratio = 7.5625f * ratio * ratio;
       } else if (ratio < (2 / 2.75f)) {
@@ -147,13 +148,14 @@ struct actable_sprite : Sprite
   rotate_action rotate;
   shear_action shear;
   color_action color;
+  int priority = 0;
 
   void init_action() {
-    translate.init(Position(), Position(), linear, 0);
-    scale.init(Scale(), Scale(), linear, 0);
-    rotate.init(Rotation(), Rotation(), linear, 0);
-    shear.init(Shear(), Shear(), linear, 0);
-    color.init(Color(), Color(), linear, 0);
+    translate.init(Position(), Position(), easing_type::linear, 0);
+    scale.init(Scale(), Scale(), easing_type::linear, 0);
+    rotate.init(Rotation(), Rotation(), easing_type::linear, 0);
+    shear.init(Shear(), Shear(), easing_type::linear, 0);
+    color.init(Color(), Color(), easing_type::linear, 0);
   }
 
   virtual void Update(glm::f32 delta) override {
@@ -280,6 +282,16 @@ void main_loop(T func)
       break;
     }
 
+    if (isSpritePriorityChanged) {
+      rootNode.RemoveChildrenAll();
+      std::stable_sort(spriteBuffer.begin(), spriteBuffer.end(),
+        [](const actable_sprite& lhs, const actable_sprite& rhs) { return lhs.priority < rhs.priority; });
+      for (auto& e : spriteBuffer) {
+        rootNode.AddChild(&e);
+      }
+      isSpritePriorityChanged = false;
+    }
+
     const float deltaTime = window.DeltaTime();
     rootNode.UpdateTransform();
     rootNode.UpdateRecursive(deltaTime);
@@ -399,13 +411,13 @@ void printf(const char* format, ...)
   text_y_offset += 40;
 }
 
-void reset_all_text()
+void clear_all_text()
 {
   textList.clear();
   text_y_offset = 0;
 }
 
-void reset_text_area(double x, double y, double width, double height)
+void clear_text_area(double x, double y, double width, double height)
 {
   const glm::vec2 min = screen_coord_to_clip_coord(win_to_ogl_coord(x, y));
   const glm::vec2 max = screen_coord_to_clip_coord(win_to_ogl_coord(x + width, y + height));
@@ -449,48 +461,49 @@ void set_image(ImageNo no, double x, double y, const char* filename)
   }
 }
 
-void move_image(ImageNo no, double x, double y, int easing, double seconds)
+void move_image(ImageNo no, double x, double y, double seconds, easing_type easing)
 {
   auto& e = spriteBuffer[no];
   e.translate.init(e.Position(), win_to_ogl_coord(x, y), easing, seconds);
   e.Position(glm::vec3(e.translate.update(0), 0));
 }
 
-void scale_image(ImageNo no, double x, double y, int easing, double seconds)
+void scale_image(ImageNo no, double x, double y, double seconds, easing_type easing)
 {
   auto& e = spriteBuffer[no];
   e.scale.init(e.Scale(), glm::vec2(x, y), easing, seconds);
   e.Scale(e.scale.update(0));
 }
 
-void rotate_image(ImageNo no, double degree, int easing, double seconds)
+void rotate_image(ImageNo no, double degree, double seconds, easing_type easing)
 {
   auto& e = spriteBuffer[no];
   e.rotate.init(e.Rotation(), static_cast<float>(degree) * (glm::pi<float>() / 180.0f), easing, seconds);
   e.Rotation(e.rotate.update(0));
 }
 
-void shear_image(ImageNo no, double scale, int easing, double seconds)
+void shear_image(ImageNo no, double scale, double seconds, easing_type easing)
 {
   auto& e = spriteBuffer[no];
   e.shear.init(e.Shear(), static_cast<float>(scale), easing, seconds);
   e.Shear(e.shear.update(0));
 }
 
-void color_blend_image(ImageNo no, double red, double green, double blue, double alpha, int mode, int easing, double seconds)
+void color_blend_image(ImageNo no, double red, double green, double blue, double alpha,
+  blend_mode mode, double seconds, easing_type easing)
 {
   auto& e = spriteBuffer[no];
-  e.ColorMode(static_cast<BlendMode>(glm::clamp(mode, 0, 2)));
+  e.ColorMode(static_cast<BlendMode>(glm::clamp(static_cast<int>(mode), 0, max_blend_mode)));
   e.color.init(e.Color(), glm::vec4(red, green, blue, alpha), easing, seconds);
   e.Color(e.color.update(0));
 }
 
-void reset_image(ImageNo no)
+void clear_image(ImageNo no)
 {
   spriteBuffer[no].Texture({});
 }
 
-void reset_all_image()
+void clear_all_image()
 {
   for (auto& e : spriteBuffer) {
     e.Texture({});
@@ -501,16 +514,16 @@ void fade_out(double red, double green, double blue, double seconds)
 {
   colorFilter.Color(glm::vec4(red, green, blue, 0));
   colorFilter.action.init(0, 1, linear, seconds);
-  wait(seconds);
+  sleep(seconds);
 }
 
 void fade_in(double seconds)
 {
   colorFilter.action.init(1, 0, linear, seconds);
-  wait(seconds);
+  sleep(seconds);
 }
 
-void wait(double seconds)
+void sleep(double seconds)
 {
   fontRenderer.Color(glm::vec4(1));
   fontRenderer.MapBuffer();
@@ -524,6 +537,11 @@ void wait(double seconds)
     seconds -= window.DeltaTime();
     return seconds <= 0;
     });
+}
+
+void usleep(double usec)
+{
+  sleep(usec / 1'000'000);
 }
 
 int wait_any_key()
@@ -956,7 +974,7 @@ void select_string(double x, double y, int max, char* buffer)
     });
 }
 
-int random()
+int rand()
 {
   return std::uniform_int_distribution<int>(0, std::numeric_limits<int>::max())(randomEngine);
 }
@@ -1018,6 +1036,19 @@ void set_bgm_volume(double volume)
   if (bgm) {
     bgm->SetVolume(bgmVolume);
   }
+}
+
+void image::set_priority(int priority)
+{
+  if (spriteBuffer[no].priority != priority) {
+    spriteBuffer[no].priority = priority;
+    isSpritePriorityChanged = true;
+  }
+}
+
+int image::get_priority() const
+{
+  return spriteBuffer[no].priority;
 }
 
 } // namespace Command

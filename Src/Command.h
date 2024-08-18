@@ -6,6 +6,25 @@ namespace Command {
 // 前方宣言.
 class ImageNo;
 
+// アニメーションの種類.
+enum easing_type {
+  linear, // 等速で移動.
+  in,     // 加速しながら移動.
+  out,    // 減速しながら移動.
+  in_out, // 加速しながら移動を始めて、減速しながら停止する.
+  back,   // outに似ているが、少し行き過ぎてから戻ってきて停止する.
+  bounce, // outに似ているが、移動先座標で何度か弾んでから停止する.
+};
+constexpr int max_easing_type = bounce;
+
+// 色の合成方法.
+enum blend_mode {
+  mul, // 乗算.
+  add, // 加算.
+  sub, // 減算.
+};
+constexpr int max_blend_mode = sub;
+
 /**
 * 文字を表示する.
 *
@@ -23,7 +42,7 @@ void printf(const char* format, ...);
 /**
 * すべての文字を消す.
 */
-void reset_all_text();
+void clear_all_text();
 
 /**
 * 指定した範囲内の文字を消す.
@@ -40,7 +59,7 @@ void reset_all_text();
 * 消去範囲を中央から右端までとした場合、この文字列は1文字も消えない.
 * 消去範囲を左端から中央までとした場合、この文字列はすべて消える.
 */
-void reset_text_area(double x, double y, double width, double height);
+void clear_text_area(double x, double y, double width, double height);
 
 /**
 * 画像を配置する.
@@ -81,7 +100,7 @@ void set_image(ImageNo no, double x, double y, const char* filename);
 * ウィンドウの大きさは横800ドット、縦600ドットである.
 * ここで指定する座標は画像の中心を指す.
 */
-void move_image(ImageNo no, double x, double y, int easing, double seconds);
+void move_image(ImageNo no, double x, double y, double seconds, easing_type easing = easing_type::in_out);
 
 /**
 * 画像を拡大・縮小する.
@@ -98,7 +117,7 @@ void move_image(ImageNo no, double x, double y, int easing, double seconds);
 *                   5 1に似ているが、何度か弾むように拡大・縮小しなから停止する.
 * @param  seconds 動作時間(秒).
 */
-void scale_image(ImageNo no, double x, double y, int easing, double seconds);
+void scale_image(ImageNo no, double x, double y, double seconds, easing_type easing = easing_type::in_out);
 
 /**
 * 画像を回転する.
@@ -114,7 +133,7 @@ void scale_image(ImageNo no, double x, double y, int easing, double seconds);
 *                   5 1に似ているが、何度か弾みなから停止する.
 * @param  seconds 動作時間(秒).
 */
-void rotate_image(ImageNo no, double degree, int easing, double seconds);
+void rotate_image(ImageNo no, double degree, double seconds, easing_type easing = easing_type::in_out);
 
 /**
 * 画像を傾ける.
@@ -130,7 +149,7 @@ void rotate_image(ImageNo no, double degree, int easing, double seconds);
 *                   5 1に似ているが、何度か弾みなから停止する.
 * @param  seconds 動作時間(秒).
 */
-void shear_image(ImageNo no, double scale, int easing, double seconds);
+void shear_image(ImageNo no, double scale, double seconds, easing_type easing = easing_type::in_out);
 
 /**
 * 画像と色を合成する.
@@ -153,12 +172,13 @@ void shear_image(ImageNo no, double scale, int easing, double seconds);
 *                   5 1に似ているが、何度か弾むように合成しなから停止する.
 * @param  seconds 動作時間(秒).
 */
-void color_blend_image(ImageNo no, double red, double green, double blue, double alpha, int mode, int easing, double seconds);
+void color_blend_image(ImageNo no, double red, double green, double blue, double alpha,
+  blend_mode mode, double seconds, easing_type easing = easing_type::in_out);
 
 /**
 * すべての画像を消す.
 */
-void reset_all_image();
+void clear_all_image();
 
 /**
 * 管理番号で指定された画像を消す.
@@ -167,7 +187,7 @@ void reset_all_image();
 *
 * 対象の画像がすでに消されていた場合は何もしない.
 */
-void reset_image(ImageNo no);
+void clear_image(ImageNo no);
 
 /**
 * 画面をフェードアウトする.
@@ -191,7 +211,14 @@ void fade_in(double seconds);
 *
 * @param  seconds 待ち時間(秒).
 */
-void wait(double seconds);
+void sleep(double seconds);
+
+/**
+* 一定時間待つ.
+*
+* @param  usec 待ち時間(マイクロ秒).
+*/
+void usleep(double usec);
 
 /**
 * 何かキーが入力されるまで待つ.
@@ -278,7 +305,7 @@ void select_string(double x, double y, int max, char* buffer);
 *
 * @return 0以上2^31-1以下のランダムな値.
 */
-int random();
+int rand();
 
 /**
 * アプリケーションを終了する.
@@ -308,9 +335,10 @@ void stop_bgm();
 * 音声の音量を設定する.
 *
 * @param volume 音量
-*               0.0 無音
-*               1.0 音声データそのままの音量.
-*               2.0 音声データの2倍の音量.
+*               0.0～ 1.0～ 2.0～
+*                ｜　　｜　　｜
+*               無音　 ｜　 音声データの2倍の音量
+*                   音声データそのままの音量
 */
 void set_sound_volume(double volume);
 
@@ -318,9 +346,10 @@ void set_sound_volume(double volume);
 * 背景音楽の音量を設定する.
 *
 * @param volume 音量
-*               0.0 無音
-*               1.0 音声データそのままの音量.
-*               2.0 音声データの2倍の音量.
+*               0.0～ 1.0～ 2.0～
+*                ｜　　｜　　｜
+*               無音　 ｜　 音声データの2倍の音量
+*                   音声データそのままの音量
 */
 void set_bgm_volume(double volume);
 
@@ -335,6 +364,32 @@ void initialize(const char* title);
 * Commandライブラリを終了する.
 */
 void finalize();
+
+/**
+* 色クラス.
+*/
+class color {
+public:
+  friend class image;
+  color(double r, double g, double b, double a) : r(r), g(g), b(b), a(a) {}
+  color(const color&) = delete;
+  ~color() = default;
+  color& operator=(const color& other) { r = other.r; g = other.g; b = other.b; a = other.a; return *this; }
+
+private:
+  double r, g, b, a;
+};
+
+extern const color color_red;        // 赤
+extern const color color_yellow;     // 黄
+extern const color color_green;      // 緑
+extern const color color_light_blue; // 水色
+extern const color color_blue;       // 青
+extern const color color_purple;     // 紫
+extern const color color_black;      // 黒
+extern const color color_gray;       // 灰色
+extern const color color_white;      // 白
+extern const color color_clear;      // 透明
 
 /**
 * 画像制御番号.
@@ -353,6 +408,67 @@ public:
 
 private:
   int no = 0;
+};
+
+/**
+* 画像制御クラス.
+*/
+class image
+{
+public:
+  // コンストラクタ
+  image() : no(n) { n = (n + 1) % 1024; }
+  image(double x, double y, const char* filename) : no(n) {
+    n = (n + 1) % 1024;
+    set_image(no, x, y, filename);
+  }
+  image(const image& other) : no(other.no) {}
+
+  // デストラクタ
+  ~image() = default;
+
+  // コピー代入演算子
+  const image& operator=(const image& other) { no = other.no; return *this; }
+
+  // 画像を設定
+  void set(double x, double y, const char* filename) { set_image(no, x, y, filename); }
+
+  // 画像を未設定にする(=消す)
+  void clear() { clear_image(no); }
+
+  // 表示優先順位の設定と取得
+  void set_priority(int priority);
+  int get_priority() const;
+
+  // 画像を移動
+  void move(double x, double y, double seconds = 0.1, easing_type easing = easing_type::in_out) {
+    move_image(no, x, y, seconds, easing);
+  }
+
+  // 画像の拡大・縮小
+  void scale(double x, double y, double seconds = 0.1, easing_type easing = easing_type::in_out) {
+    scale_image(no, x, y, seconds, easing);
+  }
+
+  // 画像の回転
+  void rotate(double degree, double seconds = 0.1, easing_type easing = easing_type::in_out) {
+    rotate_image(no, degree, seconds, easing);
+  }
+
+  // 画像のせん断
+  void shear(double scale, double seconds = 0.1, easing_type easing = easing_type::in_out) {
+    shear_image(no, scale, seconds, easing);
+  }
+
+  // 画像に色を付ける
+  void color(const color& c, blend_mode mode = blend_mode::mul, double seconds = 0,
+    easing_type easing = easing_type::in_out){
+    color_blend_image(no, c.r, c.g, c.b, c.a, mode, seconds, easing);
+  }
+
+private:
+  ImageNo no;
+  static int n;
 };
 
 // 画像制御番号変数のリスト.

@@ -107,6 +107,8 @@ GLuint CreateVAO(GLuint vbo, GLuint ibo)
   SetVertexAttribPointer(2, Vertex, texCoord);
   SetVertexAttribIntPointer(3, Vertex, blendMode);
   glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   return vao;
 }
 
@@ -357,7 +359,7 @@ void SpriteRenderer::Draw(const glm::vec2& screenSize) const
   glBindVertexArray(vao);
   for (const auto& data : drawDataList) {
     glBindTexture(GL_TEXTURE_2D, data.texture->Id());
-    glDrawElements(GL_TRIANGLES, data.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(data.offset));
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(data.count), GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(data.offset));
   }
   glBindVertexArray(0);
 }

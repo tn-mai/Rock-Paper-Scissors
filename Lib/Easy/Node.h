@@ -51,6 +51,7 @@ public:
 
   void AddChild(Node*);
   void RemoveChild(Node*);
+  void RemoveChildrenAll();
   Node* Parent() const { return parent; }
   const std::deque<Node*>& Children() const { return children; }
 

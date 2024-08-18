@@ -2,6 +2,7 @@
 * @file BufferObject.cpp
 */
 #include "BufferObject.h"
+#include <iostream>
 
 /**
 * バッファオブジェクトを作成する.
@@ -45,6 +46,12 @@ void VertexArrayObject::Init(GLuint vbo, GLuint ibo)
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  const GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    std::cerr << "[エラー] " << __func__ << ": VAOの作成に失敗.\n";
+  }
 }
 
 /**
@@ -61,6 +68,7 @@ void VertexArrayObject::Destroy()
 /**
 * 頂点アトリビュートを設定する.
 *
+* @param vbo        頂点アトリビュートのVBO.
 * @param index      頂点アトリビュートのインデックス.
 * @param size       頂点アトリビュートの要素数.
 * @param type       頂点アトリビュートの型.
@@ -68,11 +76,15 @@ void VertexArrayObject::Destroy()
 * @param stride     次の頂点データまでのバイト数.
 * @param offset     頂点データ先頭からのバイトオフセット.
 */
-void VertexArrayObject::VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset)
+void VertexArrayObject::VertexAttribPointer(GLuint vbo, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset)
 {
+  Bind();
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableVertexAttribArray(index);
   glVertexAttribPointer(index, size, type, normalized, stride,
     reinterpret_cast<GLvoid*>(offset));
+  Unbind();
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 /**
