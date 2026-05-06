@@ -548,6 +548,7 @@ int wait_any_key()
 {
   float timer = 0;
   int result;
+  bool isInputStart = false;
   main_loop([&] {
     GLFWEW::Window& window = GLFWEW::Window::Instance();
 
@@ -566,14 +567,19 @@ int wait_any_key()
     fontRenderer.AddString(markerPos, L"Þ");
     fontRenderer.UnmapBuffer();
 
-    result = window.LastPressedKey();
-    if (!result) {
-      const GamePad gamepad = window.GetGamePad();
-      if (gamepad.buttonDown) {
-        result = KEYCODE_GAMEPAD;
+    if (!isInputStart) {
+      isInputStart = window.NumOfKeyPressed() == 0;
+      return 0;
+    } else {
+      result = window.LastPressedKey();
+      if (!result) {
+        const GamePad gamepad = window.GetGamePad();
+        if (gamepad.buttonDown) {
+          result = KEYCODE_GAMEPAD;
+        }
       }
+      return result;
     }
-    return result;
     });
   return result;
 }
@@ -994,8 +1000,10 @@ void play_sound(const char* filename)
   str += filename;
   const std::wstring ws = sjis_to_utf16(str.c_str());
   Audio::SoundPtr p = Audio::Engine::Get().PrepareMFStream(ws.c_str());
-  p->Play(Audio::Flag_None);
-  p->SetVolume(seVolume);
+  if (p) {
+    p->Play(Audio::Flag_None);
+    p->SetVolume(seVolume);
+  }
 }
 
 void play_bgm(const char* filename)
@@ -1011,8 +1019,10 @@ void play_bgm(const char* filename)
     str += filename;
     const std::wstring ws = sjis_to_utf16(str.c_str());
     bgm = Audio::Engine::Get().PrepareMFStream(ws.c_str());
-    bgm->Play(Audio::Flag_Loop);
-    bgm->SetVolume(bgmVolume);
+    if (bgm) {
+      bgm->Play(Audio::Flag_Loop);
+      bgm->SetVolume(bgmVolume);
+    }
   }
 }
 
